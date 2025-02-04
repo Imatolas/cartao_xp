@@ -1,87 +1,60 @@
 import pandas as pd
 import streamlit as st
-
-fev = pd.read_csv('faturas/Fatura2025-02-10.csv', sep = ';')
-jan = pd.read_csv('faturas/Fatura2025-01-10.csv', sep = ';')
-
-fev['Valor'] = fev['Valor'].apply(lambda x: float(x.split()[1].replace('.','').replace(',','.')))
-fev = fev[fev['Valor'] > 0]
-fev.set_index('Data', inplace=True)
-
-pai = ['CONECTCAR   *CONECTCAR', 'PG *BR DID','MP*VISUALUNIFORMESCWB','MP*2PRODUTOS','EBN    *AMAZON RETAIL', 'PET MED', 'MP*BAKMARELETRONICALTDA']
-
-fev.loc[fev['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
-fev.loc[fev['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
-jan.loc[jan['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
-jan.loc[jan['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
-
+import os
+import glob
 
 st.set_page_config(layout='wide')
-st.title('Gasto')
+st.title('Gastos')
 
+# Carregar todas as faturas automaticamente
+arquivos = sorted(glob.glob('faturas/Fatura2025-*.csv'))  # Ordena por nome (data)
+dados_faturas = {}
 
-gabriel = fev[fev['Portador']=='GABRIEL IMATO']
-victoria = fev[fev['Portador']=='VICTORIA IMATO']
-pericles = fev[fev['Portador']=='PERICLES IMATO']
+for arquivo in arquivos:
+    mes_ref = arquivo.split('-')[1]  # Extrai o mês do nome do arquivo
+    df = pd.read_csv(arquivo, sep=';')
 
-grupo = fev.groupby('Portador')['Valor'].sum()
+    # Convertendo valores corretamente
+    df['Valor'] = df['Valor'].apply(lambda x: float(x.split()[1].replace('.', '').replace(',', '.')))
+    df = df[df['Valor'] > 0]
+    df.set_index('Data', inplace=True)
 
+    # Definição de portadores
+    pai = [
+        'CONECTCAR   *CONECTCAR', 'PG *BR DID', 'MP*VISUALUNIFORMESCWB',
+        'MP*2PRODUTOS', 'EBN    *AMAZON RETAIL', 'PET MED', 'MP*BAKMARELETRONICALTDA'
+    ]
+    df.loc[df['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
+    df.loc[df['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
 
+    dados_faturas[mes_ref] = df  # Salva no dicionário
 
-jan['Valor'] = jan['Valor'].apply(lambda x: float(x.split()[1].replace('.','').replace(',','.')))
-jan = jan[jan['Valor'] > 0]
-jan.set_index('Data', inplace = True)
+# Criar um mapeamento de meses para exibição amigável
+meses_disponiveis = {str(i + 1).zfill(2): nome for i, nome in enumerate(
+    ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+)}
 
+# Criar select box para selecionar mês
+mes_selecionado = st.selectbox('Mês', [meses_disponiveis[m] for m in dados_faturas.keys()])
+mes_codigo = list(meses_disponiveis.keys())[list(meses_disponiveis.values()).index(mes_selecionado)]
+df_selecionado = dados_faturas.get(mes_codigo)
 
-meses = st.selectbox(
-    'Mes',
-    ['Jan', 'Fev']
-)
+# Selecionar portador
+portador = st.selectbox('Qual portador você deseja ver?', df_selecionado['Portador'].unique())
 
-option = st.selectbox(
-    'Qual portador voce deseja ver?',
-    ['GABRIEL IMATO','VICTORIA IMATO', 'PERICLES IMATO']
-)
+# Filtrar dados do portador
+df_portador = df_selecionado[df_selecionado['Portador'] == portador]
+parcelados = df_portador[df_portador['Parcela'] != '-']
 
-df_fev = fev[fev['Portador'] == f'{option}']
-fev_parcelados = df_fev[df_fev['Parcela'] != '-']
- 
-df_jan = jan[jan['Portador'] == f'{option}']
-jan_parcelados = jan[jan['Parcela'] != '-']
+# Exibir os dados
+col1, col2 = st.columns(2)
+with col1:
+    parcela = st.radio('Deseja ver só as parcelas?', ['Não', 'Sim'])
+    st.dataframe(parcelados if parcela == 'Sim' else df_portador)
 
-
-if meses == 'Fev':
-    col1, col2 = st.columns(2)
-    with col1:
-        parcela = st.radio(
-            'Deseja ver so as parcelas',
-            ['Nao', 'Sim']
-        )
-        if parcela =='Sim':
-            st.dataframe(fev_parcelados)
-        else:
-            st.dataframe(df_fev)
-
-    with col2:
-        st.header(f'TOTAL: R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum():.2f}')
-        if parcela == 'Sim':
-            st.subheader(f'Total parcelado: R$ {fev_parcelados[fev_parcelados['Portador'] == f'{option}']['Valor'].sum()}')
-
-if meses == 'Jan':
-    col1, col2 = st.columns(2)
-    with col1:
-        parcela = st.radio(
-            'Deseja ver so as parcelas',
-            ['Nao', 'Sim']
-        )
-        if parcela =='Sim':
-            st.dataframe(jan_parcelados)
-        else:
-            st.dataframe(df_jan)
-    
-    with col2:
-        st.header(f'TOTAL: R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum():.2f}')
-        if parcela == 'Sim':
-            st.subheader(f'Total parcelado: R$ {jan_parcelados[jan_parcelados['Portador'] == f'{option}']['Valor'].sum()}')
-
-        
+with col2:
+    total = df_portador['Valor'].sum()
+    st.header(f'TOTAL: R$ {total:.2f}')
+    if parcela == 'Sim':
+        total_parcelado = parcelados['Valor'].sum()
+        st.subheader(f'Total parcelado: R$ {total_parcelado:.2f}')
