@@ -59,6 +59,6 @@ if meses == 'Jan':
         st.dataframe(df_jan)
     
     with col2:
-        st.subheader(f'TOTAL: R$ {jan[jan['Portador'] == f'{option}']['Valor'].sum()}')
+        st.header(f'TOTAL: R$ {jan[jan['Portador'] == f'{option}']['Valor'].sum()}')
 
         
