@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-fatura = pd.read_csv('Fatura2025-02-10.csv', sep = ';')
-nw = pd.read_csv('Fatura2025-02-10.csv', sep = ';')
+fatura = pd.read_csv('faturas/Fatura2025-02-10.csv', sep = ';')
+nw = pd.read_csv('faturas/Fatura2025-02-10.csv', sep = ';')
 nw.set_index('Data', inplace=True)
 
 fatura['Valor'] = fatura['Valor'].apply(lambda x: float(x.split()[1].replace('.','').replace(',','.')))
