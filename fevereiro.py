@@ -1,44 +1,64 @@
 import pandas as pd
 import streamlit as st
 
-fatura = pd.read_csv('faturas/Fatura2025-02-10.csv', sep = ';')
-nw = pd.read_csv('faturas/Fatura2025-02-10.csv', sep = ';')
-nw.set_index('Data', inplace=True)
+fev = pd.read_csv('faturas/Fatura2025-02-10.csv', sep = ';')
+jan = pd.read_csv('faturas/Fatura2025-01-10.csv', sep = ';')
 
-fatura['Valor'] = fatura['Valor'].apply(lambda x: float(x.split()[1].replace('.','').replace(',','.')))
-fatura = fatura[fatura['Valor'] > 0]
-fatura.set_index('Data', inplace=True)
+fev['Valor'] = fev['Valor'].apply(lambda x: float(x.split()[1].replace('.','').replace(',','.')))
+fev = fev[fev['Valor'] > 0]
+fev.set_index('Data', inplace=True)
 
 pai = ['CONECTCAR   *CONECTCAR', 'PG *BR DID','MP*VISUALUNIFORMESCWB','MP*2PRODUTOS','EBN    *AMAZON RETAIL', 'PET MED', 'MP*BAKMARELETRONICALTDA']
 
-fatura.loc[fatura['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
-fatura.loc[fatura['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
-pec = fatura[fatura['Portador'] == 'PERICLES IMATO']
+fev.loc[fev['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
+fev.loc[fev['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
+jan.loc[jan['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
+jan.loc[jan['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
+
 
 st.set_page_config(layout='wide')
-st.title('Gasto fevereiro')
-option = st.selectbox(
-    'Qual portador voce deseja ver?',
-    fatura['Portador'].unique()
+st.title('Gasto')
+
+
+gabriel = fev[fev['Portador']=='GABRIEL IMATO']
+victoria = fev[fev['Portador']=='VICTORIA IMATO']
+pericles = fev[fev['Portador']=='PERICLES IMATO']
+
+grupo = fev.groupby('Portador')['Valor'].sum()
+
+
+jan['Valor'] = jan['Valor'].apply(lambda x: float(x.split()[1].replace('.','').replace(',','.')))
+jan = jan[jan['Valor'] > 0]
+jan.set_index('Data', inplace = True)
+
+
+meses = st.selectbox(
+    'Mes',
+    ['Jan', 'Fev']
 )
 
-gabriel = fatura[fatura['Portador']=='GABRIEL IMATO']
-victoria = fatura[fatura['Portador']=='VICTORIA IMATO']
-pericles = fatura[fatura['Portador']=='PERICLES IMATO']
+option = st.selectbox(
+    'Qual portador voce deseja ver?',
+    ['GABRIEL IMATO','VICTORIA IMATO', 'PERICLES IMATO']
+)
 
-grupo = fatura.groupby('Portador')['Valor'].sum()
+df_fev = fev[fev['Portador'] == f'{option}']
+df_jan = jan[jan['Portador'] == f'{option}']
 
+if meses == 'Fev':
+    col1, col2 = st.columns(2)
+    with col1:
+        st.dataframe(df_fev)
 
-df_selecionado = nw[nw['Portador'] == f'{option}']
+    with col2:
+        st.header(f'R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum()}')
 
-col1, col2 = st.columns(2)
-with col1:
-    st.dataframe(df_selecionado)
-
-with col2:
-    st.header('Gabriel')
+if meses == 'Jan':
+    col1, col2 = st.columns(2)
+    with col1:
+        st.dataframe(df_jan)
     
-    st.header('Victoria')
-    
-    st.header('Pericles')
-    
+    with col2:
+        st.header(f'R$ {jan[jan['Portador'] == f'{option}']['Valor'].sum()}')
+
+        
