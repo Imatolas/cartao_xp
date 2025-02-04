@@ -51,7 +51,7 @@ if meses == 'Fev':
         st.dataframe(df_fev)
 
     with col2:
-        st.header(f'R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum()}')
+        st.header(f'TOTAL: R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum()}')
 
 if meses == 'Jan':
     col1, col2 = st.columns(2)
