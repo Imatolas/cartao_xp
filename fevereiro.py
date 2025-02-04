@@ -27,6 +27,7 @@ pericles = fev[fev['Portador']=='PERICLES IMATO']
 grupo = fev.groupby('Portador')['Valor'].sum()
 
 
+
 jan['Valor'] = jan['Valor'].apply(lambda x: float(x.split()[1].replace('.','').replace(',','.')))
 jan = jan[jan['Valor'] > 0]
 jan.set_index('Data', inplace = True)
@@ -43,22 +44,44 @@ option = st.selectbox(
 )
 
 df_fev = fev[fev['Portador'] == f'{option}']
+fev_parcelados = df_fev[df_fev['Parcela'] != '-']
+ 
 df_jan = jan[jan['Portador'] == f'{option}']
+jan_parcelados = jan[jan['Parcela'] != '-']
+
 
 if meses == 'Fev':
     col1, col2 = st.columns(2)
     with col1:
-        st.dataframe(df_fev)
+        parcela = st.radio(
+            'Deseja ver so as parcelas',
+            ['Nao', 'Sim']
+        )
+        if parcela =='Sim':
+            st.dataframe(fev_parcelados)
+        else:
+            st.dataframe(df_fev)
 
     with col2:
-        st.header(f'TOTAL: R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum()}')
+        st.header(f'TOTAL: R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum():.2f}')
+        if parcela == 'Sim':
+            st.subheader(f'Total parcelado: R$ {fev_parcelados[fev_parcelados['Portador'] == f'{option}']['Valor'].sum()}')
 
 if meses == 'Jan':
     col1, col2 = st.columns(2)
     with col1:
-        st.dataframe(df_jan)
+        parcela = st.radio(
+            'Deseja ver so as parcelas',
+            ['Nao', 'Sim']
+        )
+        if parcela =='Sim':
+            st.dataframe(jan_parcelados)
+        else:
+            st.dataframe(df_jan)
     
     with col2:
-        st.header(f'TOTAL: R$ {jan[jan['Portador'] == f'{option}']['Valor'].sum()}')
+        st.header(f'TOTAL: R$ {fev[fev['Portador'] == f'{option}']['Valor'].sum():.2f}')
+        if parcela == 'Sim':
+            st.subheader(f'Total parcelado: R$ {jan_parcelados[jan_parcelados['Portador'] == f'{option}']['Valor'].sum()}')
 
         
