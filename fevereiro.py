@@ -21,11 +21,17 @@ for arquivo in arquivos:
 
     
     pai = [
-        'CONECTCAR   *CONECTCAR', 'PG *BR DID', 'MP*VISUALUNIFORMESCWB',
-        'MP*2PRODUTOS', 'EBN    *AMAZON RETAIL', 'PET MED', 'MP*BAKMARELETRONICALTDA'
+        'CONECTCAR   *CONECTCAR', 'MP*VISUALUNIFORMESCWB',
+        'MP*2PRODUTOS', 'EBN    *AMAZON RETAIL', 'PET MED',
     ]
+    empresa = ['PG *BR DID', 'MP*2PRODUTOS','MP*BAKMARELETRONICALTDA'
+
+    ]
+
+
     df.loc[df['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
     df.loc[df['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
+    df.loc[df['Estabelecimento'].isin(empresa), 'Portador'] = '3dlux'
 
     dados_faturas[mes_ref] = df
 
