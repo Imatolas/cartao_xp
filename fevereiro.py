@@ -24,13 +24,14 @@ for arquivo in arquivos:
         'CONECTCAR   *CONECTCAR', 'MP*VISUALUNIFORMESCWB',
         'MP*2PRODUTOS', 'EBN    *AMAZON RETAIL', 'PET MED',
     ]
-    empresa = ['PG *BR DID', 'MP*2PRODUTOS','MP*BAKMARELETRONICALTDA'
+    empresa = ['PG *BR DID', 'MP*2PRODUTOS','MP*BAKMARELETRONICALTDA', 'MP*ACQUALAO', 'FIVERR COM',
+               'DM*FIVERR'
 
     ]
 
 
     df.loc[df['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
-    df.loc[df['Estabelecimento'] == 'MENDES DE FARIAS CLIN', 'Portador'] = 'VICTORIA IMATO'
+    df.loc[df['Estabelecimento'] == ['MENDES DE FARIAS CLIN', 'PG *TON RAFAEL FRUTAS', 'PAPAI DO CEU', 'MUNDIAL FRUTAS'], 'Portador'] = 'VICTORIA IMATO'
     df.loc[df['Estabelecimento'].isin(empresa), 'Portador'] = '3dlux'
 
     dados_faturas[mes_ref] = df
