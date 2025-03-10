@@ -29,9 +29,10 @@ for arquivo in arquivos:
 
     ]
 
+    vic = ['MENDES DE FARIAS CLIN', 'PG *TON RAFAEL FRUTAS', 'PAPAI DO CEU', 'MUNDIAL FRUTAS']
 
     df.loc[df['Estabelecimento'].isin(pai), 'Portador'] = 'PERICLES IMATO'
-    df.loc[df['Estabelecimento'] == ['MENDES DE FARIAS CLIN', 'PG *TON RAFAEL FRUTAS', 'PAPAI DO CEU', 'MUNDIAL FRUTAS'], 'Portador'] = 'VICTORIA IMATO'
+    df.loc[df['Estabelecimento'].isin(vic), 'Portador'] = 'VICTORIA IMATO'
     df.loc[df['Estabelecimento'].isin(empresa), 'Portador'] = '3dlux'
 
     dados_faturas[mes_ref] = df
