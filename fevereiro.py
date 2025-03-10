@@ -22,7 +22,7 @@ for arquivo in arquivos:
     
     pai = [
         'CONECTCAR   *CONECTCAR', 'MP*VISUALUNIFORMESCWB',
-        'MP*2PRODUTOS', 'EBN    *AMAZON RETAIL', 'PET MED',
+        'MP*2PRODUTOS', 'EBN    *AMAZON RETAIL', 'PET MED', 'EC *LGELECTRONICS'
     ]
     empresa = ['PG *BR DID', 'MP*2PRODUTOS','MP*BAKMARELETRONICALTDA', 'MP*ACQUALAO', 'FIVERR COM',
                'DM*FIVERR'
